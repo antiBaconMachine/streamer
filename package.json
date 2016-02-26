@@ -1,0 +1,24 @@
+{
+  "name": "streamer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "./scripts/build.js",
+    "watch": "./scripts/build.js -w",
+    "lint": "eslint .",
+    "ci": "npm run lint"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "browserify": "13.0.0",
+    "eslint": "2.2.0",
+    "mocha": "2.4.5",
+    "testem": "1.4.1"
+  },
+  "dependencies": {
+    "dragula": "3.6.7"
+  }
+}

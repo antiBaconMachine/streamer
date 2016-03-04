@@ -34,8 +34,24 @@ const shop = grid(1, streams.length, (function() {
 
 const matrix = grid(1, 5, {
     gridClass: 'matrix',
-    cellClass: 'matrix__cell'
+    cellClass: 'matrix__cell',
+    cb: function() {
+        const sub = document.createElement('span');
+        sub.className = 'value_holder';
+        return sub;
+    }
 });
+
+function makeTransform(el) {
+    const name = el && el.getAttribute('data-transform');
+    const cns = transforms[name];
+    if (cns) {
+        const trans = throttle(cns(), 1);
+        trans.on('data', function(c) {
+            console.log(c);
+        });
+    }
+}
 
 const buttons = controls({
     'start': function() {
@@ -51,7 +67,7 @@ const buttons = controls({
         const out = [].slice.call(document.querySelectorAll('.matrix .row_0 .cell')).reduce(function(prev, cell) {
             const transEl = cell.children[0];
             if (transEl) {
-                const trans = throttle(transforms[transEl.getAttribute('data-transform')](), 1);
+                const trans = makeTransform(transEl);
                 if (trans) {
                     prev.pipe(trans);
                     return trans;

@@ -43,7 +43,7 @@ const buttons = controls({
         const numbers = Array(10).fill(1);
         source._read = function() {
             if (!numbers.length) {
-                source.push(null);
+                //source.push(null);
                 return;
             }
             source.push('' + numbers.shift());

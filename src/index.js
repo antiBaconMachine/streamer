@@ -50,7 +50,7 @@ const container = document.getElementById('container'),
             const out = [].slice.call(document.querySelectorAll('.matrix .row_0 .cell')).reduce(function(prev, cell) {
                 const transEl = cell.children[0];
                 if (transEl) {
-                    const trans = transforms[transEl.getAttribute('data-transform')];
+                    const trans = (transforms[transEl.getAttribute('data-transform')]());
                     if (trans) {
                         prev.pipe(trans);
                         return trans;

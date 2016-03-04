@@ -19,6 +19,7 @@
     "testem": "1.4.1"
   },
   "dependencies": {
-    "dragula": "3.6.7"
+    "dragula": "3.6.7",
+    "throttled-stream": "0.0.1"
   }
 }

@@ -3,7 +3,8 @@
 const dragula = require('dragula'),
     grid = require('grid'),
     controls = require('controls'),
-    stream = require('stream');
+    stream = require('stream'),
+    throttle = require('throttled-stream');
 
 const transforms = {
     plus1: require('transform/plus1'),
@@ -13,63 +14,62 @@ const transforms = {
 
 const streams = Object.keys(transforms);
 
-const container = document.getElementById('container'),
-    shop = grid(1, streams.length, (function() {
+const container = document.getElementById('container');
 
-        return {
-            gridClass: 'shop',
-            cb: function() {
-                const stream = streams.shift();
-                if (stream) {
-                    const el = document.createElement('div');
-                    el.setAttribute('data-transform', stream);
-                    el.innerHTML = stream;
-                    el.className = 'copyable';
-                    return el;
+const shop = grid(1, streams.length, (function() {
+    return {
+        gridClass: 'shop',
+        cb: function() {
+            const stream = streams.shift();
+            if (stream) {
+                const el = document.createElement('div');
+                el.setAttribute('data-transform', stream);
+                el.innerHTML = stream;
+                el.className = 'copyable';
+                return el;
+            }
+        }
+    };
+}()));
+
+const matrix = grid(1, 5, {
+    gridClass: 'matrix',
+    cellClass: 'matrix__cell'
+});
+
+const buttons = controls({
+    'start': function() {
+        const source = stream.Readable();
+        const numbers = Array(10).fill(1);
+        source._read = function() {
+            if (!numbers.length) {
+                source.push(null);
+                return;
+            }
+            source.push('' + numbers.shift());
+        };
+        const out = [].slice.call(document.querySelectorAll('.matrix .row_0 .cell')).reduce(function(prev, cell) {
+            const transEl = cell.children[0];
+            if (transEl) {
+                const trans = throttle(transforms[transEl.getAttribute('data-transform')](), 1);
+                if (trans) {
+                    prev.pipe(trans);
+                    return trans;
                 }
             }
+            return prev;
+        }, source);
+
+
+        const dest = stream.Writable();
+        dest._write = function(chunk, enc, next) {
+            console.log(chunk.toString());
+            next();
         };
-    }())),
-    matrix = grid(1, 5, {
-        gridClass: 'matrix',
-        cellClass: 'matrix__cell'
-    }),
-    buttons = controls({
-        'start': function() {
-            const source = stream.Readable();
-            const numbers = Array(10).fill(1);
-            source._read = function() {
-                if (!numbers.length) {
-                    source.push(null);
-                    return;
-                }
-                setTimeout(function(){
-                    source.push('' + numbers.shift());
-                }, 500);
-            };
-            const out = [].slice.call(document.querySelectorAll('.matrix .row_0 .cell')).reduce(function(prev, cell) {
-                const transEl = cell.children[0];
-                if (transEl) {
-                    const trans = (transforms[transEl.getAttribute('data-transform')]());
-                    if (trans) {
-                        prev.pipe(trans);
-                        return trans;
-                    }
-                }
-                return prev;
-            }, source);
 
-            const dest = stream.Writable();
-            dest._write = function(chunk, enc, next) {
-                console.log(chunk.toString());
-                next();
-            };
-
-            out.pipe(dest);
-
-
-        }
-    });
+        out.pipe(dest);
+    }
+});
 
 container.appendChild(shop);
 container.appendChild(matrix);

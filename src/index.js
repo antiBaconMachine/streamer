@@ -58,7 +58,7 @@ function makeTransform(el) {
 const buttons = controls({
     'start': function() {
         const source = stream.Readable();
-        const numbers = Array(10).fill(1);
+        const numbers = Array(10).fill(0).map((n, i) => i + 1);
         source._read = function() {
             if (!numbers.length) {
                 //source.push(null);

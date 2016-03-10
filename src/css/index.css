@@ -7,8 +7,19 @@
     margin: 2px;
     display: inline-block;
     vertical-align: top;
+    position: relative;
 }
 
 .row {
     border: 1px solid black;
+}
+
+.value_holder {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 50%;
+    height: 50%;
+    background-color: palevioletred;
+    display: block;
 }

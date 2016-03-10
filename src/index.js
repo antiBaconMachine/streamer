@@ -19,13 +19,14 @@ const container = document.getElementById('container');
 const shop = grid(1, streams.length, (function() {
     return {
         gridClass: 'shop',
+        cellClass: 'copyable',
         cb: function() {
             const stream = streams.shift();
             if (stream) {
                 const el = document.createElement('div');
                 el.setAttribute('data-transform', stream);
                 el.innerHTML = stream;
-                el.className = 'copyable';
+                el.className = 'transform';
                 return el;
             }
         }
@@ -46,10 +47,7 @@ function makeTransform(el) {
     const name = el && el.getAttribute('data-transform');
     const cns = transforms[name];
     if (cns) {
-        const trans = throttle(cns(), 1);
-        trans.on('data', function(c) {
-            console.log(c);
-        });
+        return throttle(cns(), 1);
     }
 }
 
@@ -65,7 +63,7 @@ const buttons = controls({
             source.push('' + numbers.shift());
         };
         const out = [].slice.call(document.querySelectorAll('.matrix .row_0 .cell')).reduce(function(prev, cell) {
-            const transEl = cell.children[0];
+            const transEl = cell.querySelector('.transform');
             if (transEl) {
                 const trans = makeTransform(transEl);
                 if (trans) {
@@ -93,9 +91,9 @@ container.appendChild(buttons);
 
 window.drake = dragula([].slice.apply(document.querySelectorAll('.cell')), {
     accepts: function(el, target) {
-        return !(target.childNodes.length) && target.classList.contains('matrix__cell');
+        return target.classList.contains('matrix__cell') && !target.querySelector('.transform');
     },
     copy: function(el) {
-        return el.classList.contains('copyable');
+        return el.parentNode.classList.contains('copyable');
     }
 });

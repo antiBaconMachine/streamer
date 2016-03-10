@@ -4,7 +4,8 @@ const dragula = require('dragula'),
     grid = require('grid'),
     controls = require('controls'),
     stream = require('stream'),
-    through = require('through2');
+    through = require('through2'),
+    speed = require('speed');
 
 const transforms = {
     plus1: require('transform/plus1'),
@@ -15,6 +16,12 @@ const transforms = {
 const streams = Object.keys(transforms);
 
 const container = document.getElementById('container');
+
+let throttle = 300;
+
+function delay(){
+    return throttle;
+}
 
 const shop = grid(1, streams.length, (function() {
     return {
@@ -52,11 +59,11 @@ function makeTransform(el, prev) {
             setTimeout(() => {
                 this.push(chunk);
                 cb();
-            }, 300);
+            }, delay());
         });
-        s.on('data', n => el.parentNode.querySelector('.value_holder').innerHTML = n);
+        throt.on('data', n => el.parentNode.querySelector('.value_holder').innerHTML = n);
 
-        return prev.pipe(throt).pipe(s);
+        return prev.pipe(s).pipe(throt);
     }
 }
 
@@ -95,9 +102,12 @@ const buttons = controls({
     }
 });
 
+const slider = speed.slider(25, 3000, event => throttle = event.target.value);
+
 container.appendChild(shop);
 container.appendChild(matrix);
 container.appendChild(buttons);
+container.appendChild(slider);
 
 window.drake = dragula([].slice.apply(document.querySelectorAll('.cell')), {
     accepts: function(el, target) {

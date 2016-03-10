@@ -47,7 +47,11 @@ function makeTransform(el) {
     const name = el && el.getAttribute('data-transform');
     const cns = transforms[name];
     if (cns) {
-        return throttle(cns(), 1);
+//        return throttle(cns(), 1);
+        const s = cns();
+        throttle(s, 2);
+        s.on('data', n => el.parentNode.querySelector('.value_holder').innerHTML = n);
+        return s;
     }
 }
 

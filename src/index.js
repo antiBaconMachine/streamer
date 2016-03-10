@@ -4,7 +4,7 @@ const dragula = require('dragula'),
     grid = require('grid'),
     controls = require('controls'),
     stream = require('stream'),
-    throttle = require('throttled-stream');
+    through = require('through2');
 
 const transforms = {
     plus1: require('transform/plus1'),
@@ -43,25 +43,32 @@ const matrix = grid(1, 5, {
     }
 });
 
-function makeTransform(el) {
+function makeTransform(el, prev) {
     const name = el && el.getAttribute('data-transform');
     const cns = transforms[name];
     if (cns) {
-//        return throttle(cns(), 1);
         const s = cns();
-        throttle(s, 2);
+        const throt = through(function(chunk, enc, cb) {
+            setTimeout(() => {
+                this.push(chunk);
+                cb();
+            }, 300);
+        });
         s.on('data', n => el.parentNode.querySelector('.value_holder').innerHTML = n);
-        return s;
+
+        return prev.pipe(throt).pipe(s);
     }
 }
 
 const buttons = controls({
     'start': function() {
+        [].slice.call(document.querySelectorAll('.value_holder')).forEach((el) => el.innerHTML = '');
+
         const source = stream.Readable();
         const numbers = Array(10).fill(0).map((n, i) => i + 1);
         source._read = function() {
             if (!numbers.length) {
-                //source.push(null);
+//                source.push(null);
                 return;
             }
             source.push('' + numbers.shift());
@@ -69,9 +76,8 @@ const buttons = controls({
         const out = [].slice.call(document.querySelectorAll('.matrix .row_0 .cell')).reduce(function(prev, cell) {
             const transEl = cell.querySelector('.transform');
             if (transEl) {
-                const trans = makeTransform(transEl);
+                const trans = makeTransform(transEl, prev);
                 if (trans) {
-                    prev.pipe(trans);
                     return trans;
                 }
             }

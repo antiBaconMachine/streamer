@@ -4,9 +4,7 @@ const dragula = require('dragula'),
     grid = require('grid'),
     controls = require('controls'),
     stream = require('stream'),
-//    through = require('through2'),
     speed = require('speed'),
-    streamMatrix = require('streamMatrix'),
     throttle = require('throttle').throttle,
     pumpify = require('pumpify');
 
@@ -116,8 +114,6 @@ const buttons = controls({
         const dest = makeConsoleDest();
         const streams = [source].concat(row, dest);
 
-        console.log(streams);
-
         pipeline = pumpify(streams);
         pipeline.on('destroy', clearValues);
     },
@@ -129,10 +125,10 @@ const buttons = controls({
 
 const slider = speed.slider(25, 3000, event => interval = event.target.value);
 
-container.appendChild(shop);
-container.appendChild(matrix);
 container.appendChild(buttons);
 container.appendChild(slider);
+container.appendChild(shop);
+container.appendChild(matrix);
 
 window.drake = dragula([].slice.apply(document.querySelectorAll('.cell')), {
     accepts: function(el, target) {

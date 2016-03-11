@@ -7,7 +7,8 @@ const dragula = require('dragula'),
 //    through = require('through2'),
     speed = require('speed'),
     streamMatrix = require('streamMatrix'),
-    throttle = require('throttle').throttle;
+    throttle = require('throttle').throttle,
+    pumpify = require('pumpify');
 
 const transforms = {
     plus1: require('transform/plus1'),
@@ -55,13 +56,12 @@ const matrix = grid(1, 5, {
 
 function makeNumbersSource() {
     const source = stream.Readable();
-    const numbers = Array(10).fill(0).map((n, i) => i + 1);
+//    const numbers = Array(10).fill(0).map((n, i) => i + 1);
+    let i = 1;
     source._read = function() {
-        if (!numbers.length) {
-            //source.push(null);
-            return;
+        if (!this.isPaused()) {
+            this.push('' + i++);
         }
-        source.push('' + numbers.shift());
     };
     return source;
 }
@@ -81,7 +81,7 @@ function makeTransform(el) {
 function makeConsoleDest() {
     const dest = stream.Writable();
     dest._write = function(chunk, enc, next) {
-        console.log(chunk.toString());
+//        console.log(chunk.toString());
         next();
     };
     return dest;
@@ -101,21 +101,29 @@ function inspector(stream) {
     return stream;
 }
 
+let pipeline;
 const buttons = controls({
-    'start': function() {
+    'start': () => {
         clearValues();
 
         const row = [].slice.call(document.querySelectorAll('.matrix .row_0 .cell'))
-            .filter(e => e)
             .map(makeTransform)
+            .filter(e => e)
             .map(throtler)
             .map(inspector);
 
         const source = makeNumbersSource();
-        const out = streamMatrix.row(row);
         const dest = makeConsoleDest();
-        source.pipe(row[0]);
-        out.pipe(dest);
+        const streams = [source].concat(row, dest);
+
+        console.log(streams);
+
+        pipeline = pumpify(streams);
+        pipeline.on('destroy', clearValues);
+    },
+    'stop': () => {
+        pipeline.destroy();
+        clearValues();
     }
 });
 

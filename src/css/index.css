@@ -23,3 +23,9 @@
     background-color: palevioletred;
     display: block;
 }
+
+.controls a {
+    display: block;
+    margin-left: 2vh;
+    float: left;
+}

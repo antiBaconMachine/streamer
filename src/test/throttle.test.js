@@ -13,7 +13,7 @@ test('it should delay writes on a stream', t => {
         interval: () => 0
     };
 
-    from(vals).pipe(throttle(through(), delay)).on('data', d => {
+    from(vals).pipe(throttle(delay, through())).on('data', d => {
         t.equals(d.toString(), vals.shift());
     }).on('end', t.end);
 });

@@ -4,8 +4,10 @@ const dragula = require('dragula'),
     grid = require('grid'),
     controls = require('controls'),
     stream = require('stream'),
-    through = require('through2'),
-    speed = require('speed');
+//    through = require('through2'),
+    speed = require('speed'),
+    streamMatrix = require('streamMatrix'),
+    throttle = require('throttle').throttle;
 
 const transforms = {
     plus1: require('transform/plus1'),
@@ -17,11 +19,12 @@ const streams = Object.keys(transforms);
 
 const container = document.getElementById('container');
 
-let throttle = 300;
+let interval = 300;
+const delay = {
+    interval: () => interval
+};
 
-function delay(){
-    return throttle;
-}
+const throtler = s => throttle(delay, s);
 
 const shop = grid(1, streams.length, (function() {
     return {
@@ -50,59 +53,50 @@ const matrix = grid(1, 5, {
     }
 });
 
-function makeTransform(el, prev) {
+function makeNumbersSource() {
+    const source = stream.Readable();
+    const numbers = Array(10).fill(0).map((n, i) => i + 1);
+    source._read = function() {
+        if (!numbers.length) {
+            //source.push(null);
+            return;
+        }
+        source.push('' + numbers.shift());
+    };
+    return source;
+}
+
+function makeTransform(el) {
     const name = el && el.getAttribute('data-transform');
     const cns = transforms[name];
-    if (cns) {
-        const s = cns();
-        const throt = through(function(chunk, enc, cb) {
-            setTimeout(() => {
-                this.push(chunk);
-                cb();
-            }, delay());
-        });
-        throt.on('data', n => el.parentNode.querySelector('.value_holder').innerHTML = n);
+    return cns ? cns() : null;
+}
 
-        return prev.pipe(s).pipe(throt);
-    }
+function makeConsoleDest() {
+    const dest = stream.Writable();
+    dest._write = function(chunk, enc, next) {
+        console.log(chunk.toString());
+        next();
+    };
+    return dest;
+}
+
+function clearValues() {
+    [].slice.call(document.querySelectorAll('.value_holder')).forEach((el) => el.innerHTML = '');
 }
 
 const buttons = controls({
     'start': function() {
-        [].slice.call(document.querySelectorAll('.value_holder')).forEach((el) => el.innerHTML = '');
-
-        const source = stream.Readable();
-        const numbers = Array(10).fill(0).map((n, i) => i + 1);
-        source._read = function() {
-            if (!numbers.length) {
-//                source.push(null);
-                return;
-            }
-            source.push('' + numbers.shift());
-        };
-        const out = [].slice.call(document.querySelectorAll('.matrix .row_0 .cell')).reduce(function(prev, cell) {
-            const transEl = cell.querySelector('.transform');
-            if (transEl) {
-                const trans = makeTransform(transEl, prev);
-                if (trans) {
-                    return trans;
-                }
-            }
-            return prev;
-        }, source);
-
-
-        const dest = stream.Writable();
-        dest._write = function(chunk, enc, next) {
-            console.log(chunk.toString());
-            next();
-        };
-
-        out.pipe(dest);
+        clearValues();
+        const row = [].slice.call(document.querySelectorAll('.matrix .row_0 .transform')).map(makeTransform).map(throtler);
+        const source = makeNumbersSource();
+        const pipeline = streamMatrix.row(row);
+        const dest = makeConsoleDest();
+        source.pipe(pipeline).pipe(dest);
     }
 });
 
-const slider = speed.slider(25, 3000, event => throttle = event.target.value);
+const slider = speed.slider(25, 3000, event => interval = event.target.value);
 
 container.appendChild(shop);
 container.appendChild(matrix);

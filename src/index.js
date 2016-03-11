@@ -34,13 +34,15 @@ const throtler = s => throttle(delay, s);
 const shop = grid(1, streams.length, (function() {
     return {
         gridClass: 'shop',
-        cellClass: 'copyable',
+        cellClass: 'copyable cell',
         cb: function() {
             const stream = streams.shift();
             if (stream) {
-                const el = document.createElement('div');
+                const el = grid(3, 3, {
+                    cellClass: 'transform__cell'
+                });
                 el.setAttribute('data-transform', stream);
-                el.innerHTML = stream;
+                el.querySelector('.cell_11').innerHTML = stream;
                 el.className = 'transform';
                 return el;
             }
@@ -50,7 +52,7 @@ const shop = grid(1, streams.length, (function() {
 
 const matrix = grid(1, 5, {
     gridClass: 'matrix',
-    cellClass: 'matrix__cell',
+    cellClass: 'matrix__cell cell',
     cb: function() {
         const sub = document.createElement('span');
         sub.className = 'value_holder';

@@ -67,9 +67,15 @@ function makeNumbersSource() {
 }
 
 function makeTransform(el) {
-    const name = el && el.getAttribute('data-transform');
+    const transEl = el && el.querySelector('.transform');
+    const name = transEl && transEl.getAttribute('data-transform');
     const cns = transforms[name];
-    return cns ? cns() : null;
+    if (!cns) {
+        return null;
+    }
+    const transform = cns();
+    transform._el = el;
+    return transform;
 }
 
 function makeConsoleDest() {
@@ -85,14 +91,31 @@ function clearValues() {
     [].slice.call(document.querySelectorAll('.value_holder')).forEach((el) => el.innerHTML = '');
 }
 
+function inspector(stream) {
+    if (stream && stream._el) {
+        const label = stream._el.querySelector('.value_holder');
+        stream.on('data', d => {
+            label.innerHTML = d || '';
+        });
+    }
+    return stream;
+}
+
 const buttons = controls({
     'start': function() {
         clearValues();
-        const row = [].slice.call(document.querySelectorAll('.matrix .row_0 .transform')).map(makeTransform).map(throtler);
+
+        const row = [].slice.call(document.querySelectorAll('.matrix .row_0 .cell'))
+            .filter(e => e)
+            .map(makeTransform)
+            .map(throtler)
+            .map(inspector);
+
         const source = makeNumbersSource();
-        const pipeline = streamMatrix.row(row);
+        const out = streamMatrix.row(row);
         const dest = makeConsoleDest();
-        source.pipe(pipeline).pipe(dest);
+        source.pipe(row[0]);
+        out.pipe(dest);
     }
 });
 

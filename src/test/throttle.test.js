@@ -17,3 +17,12 @@ test('it should delay writes on a stream', t => {
         t.equals(d.toString(), vals.shift());
     }).on('end', t.end);
 });
+
+test('it should not throw given non stream', t=> {
+    try {
+        throttle({}, null);
+    } catch(e) {
+        t.fail('throttle raised exception for non stream');
+    }
+    t.end();
+});

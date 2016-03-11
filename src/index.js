@@ -136,6 +136,7 @@ container.appendChild(slider);
 container.appendChild(shop);
 container.appendChild(matrix);
 container.appendChild(d.el);
+d.render();
 
 window.drake = dragula([].slice.apply(document.querySelectorAll('.cell')), {
     accepts: function(el, target) {

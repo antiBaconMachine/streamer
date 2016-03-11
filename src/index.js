@@ -9,9 +9,11 @@ const dragula = require('dragula'),
     pumpify = require('pumpify');
 
 const transforms = {
-    plus1: require('transform/plus1'),
-    double: require('transform/double'),
-    thru: require('transform/thru')
+    "+1": require('transform/plus1'),
+    "*2": require('transform/double'),
+    "^2": () => (require('transform/pow')(2)),
+    "^3": () => (require('transform/pow')(3)),
+    "=>": require('transform/thru')
 };
 
 const destinations = {
@@ -103,6 +105,7 @@ function inspector(stream) {
     return stream;
 }
 
+let dest;
 let pipeline;
 const buttons = controls({
     'start': () => {
@@ -115,7 +118,7 @@ const buttons = controls({
             .map(inspector);
 
         const source = makeNumbersSource();
-        const dest = makeConsoleDest();
+        dest.render();
         const streams = [source].concat(row, dest);
 
         pipeline = pumpify(streams);
@@ -129,18 +132,18 @@ const buttons = controls({
 
 const slider = speed.slider(25, 3000, event => interval = event.target.value);
 
-const d = destinations.line();
 
+dest = destinations.line();
 container.appendChild(buttons);
 container.appendChild(slider);
 container.appendChild(shop);
 container.appendChild(matrix);
-container.appendChild(d.el);
-d.render();
+container.appendChild(dest.el);
+
 
 window.drake = dragula([].slice.apply(document.querySelectorAll('.cell')), {
     accepts: function(el, target) {
-        return target.classList.contains('matrix__cell') && !target.querySelector('.transform');
+        return target.classList.contains('matrix__cell'); //&& !target.querySelector('.transform'); //this is too slow
     },
     copy: function(el) {
         return el.parentNode.classList.contains('copyable');

@@ -9,11 +9,11 @@ const dragula = require('dragula'),
     pumpify = require('pumpify');
 
 const transforms = {
-    "+1": require('transform/plus1'),
-    "*2": require('transform/double'),
-    "^2": () => (require('transform/pow')(2)),
-    "^3": () => (require('transform/pow')(3)),
-    "=>": require('transform/thru')
+    '+1': require('transform/plus1'),
+    '*2': require('transform/double'),
+    '^2': () => (require('transform/pow')(2)),
+    '√': () => (require('transform/pow')(0.5)),
+    '=>': require('transform/thru')
 };
 
 const destinations = {
@@ -147,6 +147,7 @@ window.drake = dragula([].slice.apply(document.querySelectorAll('.cell')), {
     },
     copy: function(el) {
         return el.parentNode.classList.contains('copyable');
-    }
+    },
+    removeOnSpill: true
 });
 

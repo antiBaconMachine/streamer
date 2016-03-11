@@ -1,26 +1,25 @@
 @import '../../node_modules/dragula/dist/dragula.css';
 
 .cell {
-    border: 1px dotted black;
-    width: 50px;
-    height: 50px;
-    margin: 2px;
+    width: 10vh;
+    height: 10vh;
+    margin: 1vh;
+    padding: 1vh;
     display: inline-block;
     vertical-align: top;
     position: relative;
+    text-align: center;
 }
 
-.row {
-    border: 1px solid black;
+.matrix__cell {
+    border: 1px dotted black;
 }
 
 .value_holder {
     position: absolute;
+    width: 100%;
     bottom: 0;
-    right: 0;
-    width: 50%;
-    height: 50%;
-    background-color: palevioletred;
+    left: 0;
     display: block;
 }
 
@@ -28,4 +27,17 @@
     display: block;
     margin-left: 2vh;
     float: left;
+}
+
+.transform {
+    background-color: aliceblue;
+    height: 7vh;
+    width: 7vh;
+    margin: 0 auto;
+    padding: 1vh;
+}
+
+.transform:hover {
+    cursor: -webkit-grab;
+    cursor: -moz-grab;
 }

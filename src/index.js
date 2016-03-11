@@ -14,6 +14,10 @@ const transforms = {
     thru: require('transform/thru')
 };
 
+const destinations = {
+    line: require('destination/lineChart')
+};
+
 const streams = Object.keys(transforms);
 
 const container = document.getElementById('container');
@@ -125,10 +129,13 @@ const buttons = controls({
 
 const slider = speed.slider(25, 3000, event => interval = event.target.value);
 
+const d = destinations.line();
+
 container.appendChild(buttons);
 container.appendChild(slider);
 container.appendChild(shop);
 container.appendChild(matrix);
+container.appendChild(d.el);
 
 window.drake = dragula([].slice.apply(document.querySelectorAll('.cell')), {
     accepts: function(el, target) {
@@ -138,3 +145,4 @@ window.drake = dragula([].slice.apply(document.querySelectorAll('.cell')), {
         return el.parentNode.classList.contains('copyable');
     }
 });
+

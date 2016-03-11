@@ -105,12 +105,19 @@ function inspector(stream) {
     return stream;
 }
 
+function destroy() {
+    if (pipeline) {
+        pipeline.destroy();
+    }
+    dest.render();
+    clearValues();
+}
+
 let dest;
 let pipeline;
 const buttons = controls({
     'start': () => {
-        clearValues();
-
+        destroy();
         const row = [].slice.call(document.querySelectorAll('.matrix .row_0 .cell'))
             .map(makeTransform)
             .filter(e => e)
@@ -118,16 +125,12 @@ const buttons = controls({
             .map(inspector);
 
         const source = makeNumbersSource();
-        dest.render();
         const streams = [source].concat(row, dest);
 
         pipeline = pumpify(streams);
         pipeline.on('destroy', clearValues);
     },
-    'stop': () => {
-        pipeline.destroy();
-        clearValues();
-    }
+    'stop': destroy
 });
 
 const slider = speed.slider(25, 3000, event => interval = event.target.value);

@@ -16,10 +16,12 @@
     "browserify": "13.0.0",
     "eslint": "2.2.0",
     "from2": "2.1.1",
+    "sinon": "1.17.3",
     "tape": "4.5.1",
     "testem": "1.4.1"
   },
   "dependencies": {
+    "array-flatten": "2.0.0",
     "dragula": "3.6.7",
     "through2": "2.0.1"
   }

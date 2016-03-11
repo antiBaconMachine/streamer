@@ -13,7 +13,7 @@ const transforms = {
     '*2': require('transform/double'),
     '^2': () => (require('transform/pow')(2)),
     '√': () => (require('transform/pow')(0.5)),
-    '=>': require('transform/thru')
+    '=': require('transform/thru')
 };
 
 const destinations = {
@@ -31,6 +31,8 @@ const delay = {
 
 const throtler = s => throttle(delay, s);
 
+
+
 const shop = grid(1, streams.length, (function() {
     return {
         gridClass: 'shop',
@@ -39,10 +41,21 @@ const shop = grid(1, streams.length, (function() {
             const stream = streams.shift();
             if (stream) {
                 const el = grid(3, 3, {
-                    cellClass: 'transform__cell'
+                    cellClass: 'transform__cell',
+                    cb: (i, j) => {
+                        if (i === 1) {
+                            const el = document.createElement('div');
+                            if (j === 1) {
+                                el.innerHTML = stream;
+                            } else {
+                                const inout = j === 0 ? 'input' : 'output';
+                                el.className = `flowControl ${inout}`;
+                            }
+                            return el;
+                        }
+                    }
                 });
                 el.setAttribute('data-transform', stream);
-                el.querySelector('.cell_11').innerHTML = stream;
                 el.className = 'transform';
                 return el;
             }

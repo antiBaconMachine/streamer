@@ -51,3 +51,28 @@
     box-sizing: border-box;
     display: inline-block;
 }
+
+.flowControl {
+    height: 100%;
+}
+
+.input {
+    color: blue;
+}
+
+.output {
+    color: orange;
+}
+
+.cell_10>.input:after, .cell_12>.output:after {
+    content: '→';
+}
+.cell_12>.input:after, .cell_10>.output:after {
+    content: '←';
+}
+.cell_21>.input:after, .cell_01>.output:after {
+    content: '↑';
+}
+.cell_01>.input:after, .cell_21>.output:after {
+    content: '↓';
+}
